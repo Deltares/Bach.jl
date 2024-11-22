@@ -295,7 +295,13 @@ function TabulatedRatingCurve(
         )
     end
 
-    interpolations = ScalarInterpolation[]
+    interpolation_type = interpolation_method(config.interpolation.tabulated_rating_curve)
+    if isnothing(interpolation_type)
+        error(
+            "Unsupported interpolation type $(config.interpolation.tabulated_rating_curve) for tabulated_rating_curve.",
+        )
+    end
+    interpolations = interpolation_type.type[]
     control_mapping = Dict{Tuple{NodeID, String}, ControlStateUpdate}()
     active = Bool[]
     max_downstream_level = Float64[]
@@ -312,7 +318,7 @@ function TabulatedRatingCurve(
                 node_id,
             )
             static_id = view(static, rows)
-            local is_active, interpolation
+            local is_active, interpolation, max_level
             # coalesce control_state to nothing to avoid boolean groupby logic on missing
             for group in
                 IterTools.groupby(row -> coalesce(row.control_state, nothing), static_id)
@@ -326,9 +332,10 @@ function TabulatedRatingCurve(
                     errors = true
                 end
                 interpolation = try
-                    qh_interpolation(table, rowrange)
+                    qh_interpolation(table, rowrange, interpolation_type)
                 catch
-                    LinearInterpolation(Float64[], Float64[])
+                    errors = true
+                    interpolation_type(Float64[], Float64[])
                 end
                 if !ismissing(control_state)
                     control_mapping[(
@@ -355,7 +362,7 @@ function TabulatedRatingCurve(
             if !valid_tabulated_rating_curve(node_id, pre_table, rowrange)
                 errors = true
             end
-            interpolation = qh_interpolation(pre_table, rowrange)
+            interpolation = qh_interpolation(pre_table, rowrange, interpolation_type)
             max_level = coalesce(pre_table.max_downstream_level[rowrange][begin], Inf)
             push!(interpolations, interpolation)
             push!(active, true)

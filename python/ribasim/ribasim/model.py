@@ -29,6 +29,7 @@ from ribasim.config import (
     Experimental,
     FlowBoundary,
     FlowDemand,
+    Interpolation,
     LevelBoundary,
     LevelDemand,
     LinearResistance,
@@ -82,6 +83,7 @@ class Model(FileModel):
     results_dir: Path = Field(default=Path("results"))
 
     logging: Logging = Field(default_factory=Logging)
+    interpolation: Interpolation = Field(default_factory=Interpolation)
     solver: Solver = Field(default_factory=Solver)
     results: Results = Field(default_factory=Results)
 

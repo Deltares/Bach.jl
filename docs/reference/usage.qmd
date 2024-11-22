@@ -80,6 +80,14 @@ entry             | type   | description
 ----------------- | ------ | -----------
 verbosity         | String | Verbosity level: debug, info, warn, or error.
 
+## Interpolation settings
+
+The following can be set in the configuration in the `[interpolation]` section. The supported interpolation types are: ...
+
+entry                  | type   | description
+---------------------- | ------ | -----------
+tabulated_rating_curve | String | one of the supported interpolation types
+
 ## Experimental features
 
 ::: {.callout-important}

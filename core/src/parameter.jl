@@ -405,8 +405,10 @@ interpolation in between. Relation can be updated in time, which is done by movi
 the `time` field into the `tables`, which is done in the `update_tabulated_rating_curve`
 callback.
 
-Type parameter C indicates the content backing the StructVector, which can be a NamedTuple
-of Vectors or Arrow Primitives, and is added to avoid type instabilities.
+Type parameters to avoid type instabilities:
+- C indicates the content backing the StructVector, which can be a NamedTuple
+of Vectors or Arrow Primitives;
+- I indicates the configured type of the interpolation objects for the Q(h) relationships
 
 node_id: node ID of the TabulatedRatingCurve node
 inflow_edge: incoming flow edge metadata
@@ -419,13 +421,13 @@ table: The current Q(h) relationships
 time: The time table used for updating the tables
 control_mapping: dictionary from (node_id, control_state) to Q(h) and/or active state
 """
-@kwdef struct TabulatedRatingCurve{C} <: AbstractParameterNode
+@kwdef struct TabulatedRatingCurve{C, I} <: AbstractParameterNode
     node_id::Vector{NodeID}
     inflow_edge::Vector{EdgeMetadata}
     outflow_edge::Vector{EdgeMetadata}
     active::Vector{Bool}
     max_downstream_level::Vector{Float64} = fill(Inf, length(node_id))
-    table::Vector{ScalarInterpolation}
+    table::Vector{I}
     time::StructVector{TabulatedRatingCurveTimeV1, C, Int}
     control_mapping::Dict{Tuple{NodeID, String}, ControlStateUpdate}
 end
@@ -880,14 +882,14 @@ const ModelGraph = MetaGraph{
     Float64,
 }
 
-@kwdef struct Parameters{C1, C2, C3, C4, C5, C6, C7, C8, C9, V}
+@kwdef struct Parameters{C1, C2, C3, C4, C5, C6, C7, C8, C9, V, I_TRC}
     starttime::DateTime
     graph::ModelGraph
     allocation::Allocation
     basin::Basin{C1, C2, V}
     linear_resistance::LinearResistance
     manning_resistance::ManningResistance
-    tabulated_rating_curve::TabulatedRatingCurve{C3}
+    tabulated_rating_curve::TabulatedRatingCurve{C3, I_TRC}
     level_boundary::LevelBoundary{C4}
     flow_boundary::FlowBoundary{C5}
     pump::Pump

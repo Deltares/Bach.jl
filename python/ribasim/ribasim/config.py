@@ -144,6 +144,19 @@ class Logging(ChildModel):
     verbosity: Verbosity = Verbosity.info
 
 
+class Interpolation(ChildModel):
+    """
+    Defines the interpolation types used in the core
+
+    Attributes
+    ----------
+    tabulated_rating_curve : str
+        The interpolation type used for Q(h) relationships
+    """
+
+    tabulated_rating_curve: str = "LinearInterpolation"
+
+
 class Experimental(ChildModel):
     """
     Defines experimental features.

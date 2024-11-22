@@ -9,6 +9,7 @@ Ribasim.config is a submodule mainly to avoid name clashes between the configura
 module config
 
 using Configurations: Configurations, @option, from_toml, @type_alias
+using DataInterpolations: LinearInterpolation, PCHIPInterpolation, CubicHermiteSpline
 using DataStructures: DefaultDict
 using Dates: DateTime
 using Logging: LogLevel, Debug, Info, Warn, Error
@@ -24,13 +25,14 @@ using OrdinaryDiffEqRosenbrock: Rosenbrock23, Rodas4P, Rodas5P
 export Config, Solver, Results, Logging, Toml
 export algorithm,
     camel_case,
-    snake_case,
-    input_path,
-    database_path,
-    results_path,
-    convert_saveat,
     convert_dt,
-    nodetypes
+    convert_saveat,
+    database_path,
+    input_path,
+    interpolation_method,
+    nodetypes,
+    results_path,
+    snake_case
 
 const schemas =
     getfield.(
@@ -134,9 +136,14 @@ end
     use_allocation::Bool = false
 end
 
+@option struct Interpolation <: TableOption
+    tabulated_rating_curve::String = "LinearInterpolation"
+end
+
 @option struct Experimental <: TableOption
     concentration::Bool = false
 end
+
 # For logging enabled experimental features
 function Base.iterate(exp::Experimental, state = 0)
     state >= nfields(exp) && return
@@ -156,6 +163,7 @@ end
     results_dir::String
     allocation::Allocation = Allocation()
     solver::Solver = Solver()
+    interpolation::Interpolation = Interpolation()
     logging::Logging = Logging()
     results::Results = Results()
     experimental::Experimental = Experimental()
@@ -263,6 +271,17 @@ const algorithms = Dict{String, Type}(
     "ImplicitEuler" => ImplicitEuler,
     "Euler" => Euler,
 )
+
+# PCHIPInterpolation is only a function, creates a CubicHermiteSpline
+const interpolation_methods =
+    Dict{String, @NamedTuple{type::Type, constructor::Union{Function, Type}}}(
+        "LinearInterpolation" =>
+            (type = LinearInterpolation, constructor = LinearInterpolation),
+        "PCHIPInterpolation" =>
+            (type = CubicHermiteSpline, constructor = PCHIPInterpolation),
+    )
+
+interpolation_method(method) = get(interpolation_methods, method, nothing)
 
 """
 Check whether the given function has a method that accepts the given kwarg.

@@ -40,6 +40,11 @@ sparse = true       # optional, default true
 autodiff = false    # optional, default false
 evaporate_mass = true  # optional, default true to simulate a correct mass balance
 
+[interpolation]
+# Defines which interpolation types are used for which data
+# TODO: add supported interpolation types
+tabulated_rating_curve = "LinearInterpolation"
+
 [logging]
 # defines the logging level of Ribasim
 verbosity = "info" # optional, default "info", can otherwise be "debug", "warn" or "error"

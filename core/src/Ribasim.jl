@@ -67,6 +67,7 @@ using PreallocationTools: LazyBufferCache
 using DataInterpolations:
     LinearInterpolation,
     LinearInterpolationIntInv,
+    PCHIPInterpolation,
     invert_integral,
     derivative,
     integral,

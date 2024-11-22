@@ -121,20 +121,21 @@ end
 
 """
 From a table with columns node_id, flow_rate (Q) and level (h),
-create a ScalarInterpolation from level to flow rate for a given node_id.
+create an interpolation of given type from level to flow rate for a given node_id.
 """
 function qh_interpolation(
     table::StructVector,
     rowrange::UnitRange{Int},
-)::ScalarInterpolation
+    interpolation_type,
+)::AbstractInterpolation
     level = table.level[rowrange]
     flow_rate = table.flow_rate[rowrange]
 
     # Ensure that that Q stays 0 below the first level
     pushfirst!(level, first(level) - 1)
-    pushfirst!(flow_rate, first(flow_rate))
+    pushfirst!(flow_rate, 0)
 
-    return LinearInterpolation(
+    return interpolation_type.constructor(
         flow_rate,
         level;
         extrapolate = true,
