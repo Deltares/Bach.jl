@@ -44,9 +44,15 @@ end
 @testitem "Profile" begin
     import Tables
     using DataInterpolations: LinearInterpolation, integral, invert_integral
+    using DataInterpolations.ExtrapolationType: Constant, Linear
 
     function lookup(profile, S)
-        level_to_area = LinearInterpolation(profile.A, profile.h; extrapolate = true)
+        level_to_area = LinearInterpolation(
+            profile.A,
+            profile.h;
+            extrapolation_left = Constant,
+            extrapolation_right = Linear,
+        )
         storage_to_level = invert_integral(level_to_area)
 
         level = storage_to_level(max(S, 0.0))
@@ -60,7 +66,18 @@ end
     # Covers interpolation for constant and non-constant area, extrapolation for constant area
     A = [1e-9, 100.0, 100.0]
     h = [0.0, 10.0, 15.0]
-    S = integral.(Ref(LinearInterpolation(A, h)), h)
+    S =
+        integral.(
+            Ref(
+                LinearInterpolation(
+                    A,
+                    h;
+                    extrapolation_left = Constant,
+                    extrapolation_right = Linear,
+                ),
+            ),
+            h,
+        )
     profile = (; S, A, h)
 
     # On profile points we reproduce the profile
@@ -89,7 +106,18 @@ end
     # Covers extrapolation for non-constant area
     A = [1e-9, 100.0]
     h = [0.0, 10.0]
-    S = integral.(Ref(LinearInterpolation(A, h)), h)
+    S =
+        integral.(
+            Ref(
+                LinearInterpolation(
+                    A,
+                    h;
+                    extrapolation_left = Constant,
+                    extrapolation_right = Linear,
+                ),
+            ),
+            h,
+        )
 
     profile = (; A, h, S)
 
@@ -104,6 +132,7 @@ end
     using Logging
     using Ribasim: NodeID
     using DataInterpolations: LinearInterpolation, invert_integral
+    using DataInterpolations.ExtrapolationType: Constant, Linear
     using DataStructures: OrderedSet
 
     level = [
@@ -130,7 +159,12 @@ end
         0.10659325339342585,
         1.1,
     ]
-    level_to_area = LinearInterpolation(area, level; extrapolate = true)
+    level_to_area = LinearInterpolation(
+        area,
+        level;
+        extrapolation_left = Constant,
+        extrapolation_right = Linear,
+    )
     storage_to_level = invert_integral(level_to_area)
 
     basin = Ribasim.Basin(;

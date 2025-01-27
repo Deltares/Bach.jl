@@ -324,13 +324,15 @@ end
 @testitem "negative demand" begin
     using Logging
     using DataInterpolations: LinearInterpolation
+    using DataInterpolations.ExtrapolationType: Constant
     using Ribasim: NodeID, valid_demand
 
     logger = TestLogger()
 
     with_logger(logger) do
         node_id = [NodeID(:UserDemand, 1, 1)]
-        demand_itp = [[LinearInterpolation([-5.0, -5.0], [-1.8, 1.8])]]
+        demand_itp =
+            [[LinearInterpolation([-5.0, -5.0], [-1.8, 1.8]; extrapolation = Constant)]]
         priorities = Int32[1]
         @test !valid_demand(node_id, demand_itp, priorities)
     end

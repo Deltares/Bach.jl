@@ -162,7 +162,6 @@ function parse_static_and_time(
                 if parameter_name in time_interpolatables
                     val = get_scalar_interpolation(
                         config.starttime,
-                        t_end,
                         time,
                         node_id,
                         parameter_name;
@@ -674,7 +673,6 @@ function ConcentrationData(
             substance = first_row.substance
             itp = get_scalar_interpolation(
                 config.starttime,
-                t_end,
                 StructVector(group),
                 NodeID(:Basin, first_row.node_id, 0),
                 :concentration;
@@ -764,7 +762,13 @@ function Basin(db::DB, config::Config, graph::MetaGraph)::Basin
     end
 
     level_to_area =
-        LinearInterpolation.(area, level; extrapolate = true, cache_parameters = true)
+        LinearInterpolation.(
+            area,
+            level;
+            extrapolation_left = Constant,
+            extrapolation_right = Linear,
+            cache_parameters = true,
+        )
     storage_to_level = invert_integral.(level_to_area)
 
     # Concentration data
@@ -951,7 +955,7 @@ function continuous_control_functions(db, config, ids)
         function_itp = LinearInterpolation(
             function_rows.output,
             function_rows.input;
-            extrapolate = true,
+            extrapolation = Linear,
             cache_parameters = true,
         )
 
@@ -1078,7 +1082,7 @@ function user_demand_static!(
         return_factor[user_demand_idx] = LinearInterpolation(
             fill(first_row.return_factor, 2),
             return_factor_old.t;
-            extrapolate = true,
+            extrapolation = Constant,
             cache_parameters = true,
         )
         min_level[user_demand_idx] = first_row.min_level
@@ -1090,7 +1094,7 @@ function user_demand_static!(
             demand_itp[user_demand_idx][priority_idx] = LinearInterpolation(
                 fill(demand_row, 2),
                 demand_itp_old.t;
-                extrapolate = true,
+                extrapolation = Constant,
                 cache_parameters = true,
             )
             demand[user_demand_idx, priority_idx] = demand_row
@@ -1122,7 +1126,6 @@ function user_demand_time!(
         demand_from_timeseries[user_demand_idx] = true
         return_factor_itp = get_scalar_interpolation(
             config.starttime,
-            t_end,
             StructVector(group),
             NodeID(:UserDemand, first_row.node_id, 0),
             :return_factor;
@@ -1135,7 +1138,6 @@ function user_demand_time!(
         priority_idx = findsorted(priorities, first_row.priority)
         demand_p_itp = get_scalar_interpolation(
             config.starttime,
-            t_end,
             StructVector(group),
             NodeID(:UserDemand, first_row.node_id, 0),
             :demand;
@@ -1300,7 +1302,7 @@ function push_lookup!(
     index_lookup = ConstantInterpolation(
         lookup_index,
         lookup_time;
-        extrapolate = true,
+        extrapolation = Constant,
         cache_parameters = true,
     )
     push!(current_interpolation_index, index_lookup)
@@ -1314,12 +1316,10 @@ end
 
 "Create an interpolation object that always returns `lookup_index`."
 function static_lookup(lookup_index::Int)::IndexLookup
-    # TODO if https://github.com/SciML/DataInterpolations.jl/issues/373 is fixed,
-    # make these size 1 vectors, and remove `unique` from `valid_tabulated_curve_level`
     return ConstantInterpolation(
-        [lookup_index, lookup_index],
-        [0.0, 0.0];
-        extrapolate = true,
+        [lookup_index],
+        [0.0];
+        extrapolation = Constant,
         cache_parameters = true,
     )
 end
@@ -1354,13 +1354,11 @@ function Subgrid(db::DB, config::Config, basin::Basin)::Subgrid
             valid_subgrid(subgrid_id, node_id, node_to_basin, basin_level, subgrid_level)
         !is_valid && error("Invalid Basin / subgrid table.")
 
-        # Ensure it doesn't extrapolate before the first value.
-        pushfirst!(subgrid_level, first(subgrid_level))
-        pushfirst!(basin_level, nextfloat(-Inf))
         hh_itp = LinearInterpolation(
             subgrid_level,
             basin_level;
-            extrapolate = true,
+            extrapolation_left = Constant,
+            extrapolation_right = Linear,
             cache_parameters = true,
         )
         push!(subgrid_id_static, subgrid_id)
@@ -1401,13 +1399,11 @@ function Subgrid(db::DB, config::Config, basin::Basin)::Subgrid
             valid_subgrid(subgrid_id, node_id, node_to_basin, basin_level, subgrid_level)
         !is_valid && error("Invalid Basin / subgrid_time table.")
 
-        # Ensure it doesn't extrapolate before the first value.
-        pushfirst!(subgrid_level, first(subgrid_level))
-        pushfirst!(basin_level, nextfloat(-Inf))
         hh_itp = LinearInterpolation(
             subgrid_level,
             basin_level;
-            extrapolate = true,
+            extrapolation_left = Constant,
+            extrapolation_right = Linear,
             cache_parameters = true,
         )
         # These should only be pushed when the subgrid_id has changed

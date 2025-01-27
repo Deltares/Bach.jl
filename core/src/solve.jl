@@ -433,7 +433,7 @@ function formulate_flow!(
 
         if active[id.idx] || all_nodes_active
             factor = get_low_storage_factor(current_low_storage_factor, inflow_id)
-            interpolation_index = current_interpolation_index[id.idx](t)
+            interpolation_index = Int(current_interpolation_index[id.idx](t))
             qh = interpolations[interpolation_index]
             q = factor * qh(h_a)
             q *= reduction_factor(Δh, 0.02)
