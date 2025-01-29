@@ -131,6 +131,11 @@ end
 @option struct Allocation <: TableOption
     timestep::Float64 = 86400
     use_allocation::Bool = false
+    default_source_priority_user_demand::Int = 1000
+    default_source_priority_boundary::Int = 2000
+    default_source_priority_level_demand::Int = 3000
+    default_source_priority_flow_demand::Int = 4000
+    default_source_priority_subnetwork_inlet::Int = 5000
 end
 
 @option struct Experimental <: TableOption
