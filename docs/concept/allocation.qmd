@@ -252,7 +252,7 @@ allocation_model = p.allocation.allocation_models[1]
 priority_idx = 1
 
 Ribasim.set_initial_values!(allocation_model, u, p, t)
-Ribasim.set_objective_priority!(allocation_model, u, p, t, priority_idx)
+Ribasim.set_objective_demand_priority!(allocation_model, u, p, t, priority_idx)
 
 println(p.allocation.allocation_models[1].problem)
 ```
