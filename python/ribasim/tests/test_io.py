@@ -122,7 +122,7 @@ def test_extra_spatial_columns():
         node,
         [
             user_demand.Static(
-                demand=[1e-4], return_factor=0.9, min_level=0.9, priority=1
+                demand=[1e-4], return_factor=0.9, min_level=0.9, demand_priority=1
             )
         ],
     )
@@ -141,7 +141,7 @@ def test_extra_spatial_columns():
             Node(4, Point(1, -0.5), meta_id=3),
             [
                 user_demand.Static(
-                    demand=[1e-4], return_factor=0.9, min_level=0.9, priority=1
+                    demand=[1e-4], return_factor=0.9, min_level=0.9, demand_priority=1
                 )
             ],
         )
@@ -190,7 +190,7 @@ def test_node_autoincrement():
             Node(20, Point(1, 0.5)),
             [
                 user_demand.Static(
-                    demand=[1e-4], return_factor=0.9, min_level=0.9, priority=1
+                    demand=[1e-4], return_factor=0.9, min_level=0.9, demand_priority=1
                 )
             ],
         )
@@ -234,7 +234,7 @@ def test_node_empty_geometry():
             Node(),
             [
                 user_demand.Static(
-                    demand=[1e-4], return_factor=0.9, min_level=0.9, priority=1
+                    demand=[1e-4], return_factor=0.9, min_level=0.9, demand_priority=1
                 )
             ],
         )
@@ -243,7 +243,7 @@ def test_node_empty_geometry():
             Node(2),
             [
                 user_demand.Static(
-                    demand=[1e-4], return_factor=0.9, min_level=0.9, priority=1
+                    demand=[1e-4], return_factor=0.9, min_level=0.9, demand_priority=1
                 )
             ],
         )
@@ -381,16 +381,16 @@ def test_arrow_dtype():
     # Optional integer column
     df = flow_demand.Static(
         demand=[1, 2.2],
-        priority=[1, pd.NA],
+        demand_priority=[1, pd.NA],
     ).df
 
-    assert df["priority"].dtype == "int32[pyarrow]"
-    assert df["priority"].isna().iloc[1]
+    assert df["demand_priority"].dtype == "int32[pyarrow]"
+    assert df["demand_priority"].isna().iloc[1]
 
     # Missing optional integer column
     df = flow_demand.Static(
         demand=[1, 2.2],
     ).df
 
-    assert df["priority"].dtype == "int32[pyarrow]"
-    assert df["priority"].isna().all()
+    assert df["demand_priority"].dtype == "int32[pyarrow]"
+    assert df["demand_priority"].isna().all()

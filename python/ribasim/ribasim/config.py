@@ -343,11 +343,11 @@ class TabulatedRatingCurve(MultiNodeModel):
 class UserDemand(MultiNodeModel):
     static: TableModel[UserDemandStaticSchema] = Field(
         default_factory=TableModel[UserDemandStaticSchema],
-        json_schema_extra={"sort_keys": ["node_id", "priority"]},
+        json_schema_extra={"sort_keys": ["node_id", "demand_priority"]},
     )
     time: TableModel[UserDemandTimeSchema] = Field(
         default_factory=TableModel[UserDemandTimeSchema],
-        json_schema_extra={"sort_keys": ["node_id", "priority", "time"]},
+        json_schema_extra={"sort_keys": ["node_id", "demand_priority", "time"]},
     )
     concentration: TableModel[UserDemandConcentrationSchema] = Field(
         default_factory=TableModel[UserDemandConcentrationSchema],
@@ -358,11 +358,11 @@ class UserDemand(MultiNodeModel):
 class LevelDemand(MultiNodeModel):
     static: TableModel[LevelDemandStaticSchema] = Field(
         default_factory=TableModel[LevelDemandStaticSchema],
-        json_schema_extra={"sort_keys": ["node_id", "priority"]},
+        json_schema_extra={"sort_keys": ["node_id", "demand_priority"]},
     )
     time: TableModel[LevelDemandTimeSchema] = Field(
         default_factory=TableModel[LevelDemandTimeSchema],
-        json_schema_extra={"sort_keys": ["node_id", "priority", "time"]},
+        json_schema_extra={"sort_keys": ["node_id", "demand_priority", "time"]},
     )
 
 
@@ -384,11 +384,11 @@ class FlowBoundary(MultiNodeModel):
 class FlowDemand(MultiNodeModel):
     static: TableModel[FlowDemandStaticSchema] = Field(
         default_factory=TableModel[FlowDemandStaticSchema],
-        json_schema_extra={"sort_keys": ["node_id", "priority"]},
+        json_schema_extra={"sort_keys": ["node_id", "demand_priority"]},
     )
     time: TableModel[FlowDemandTimeSchema] = Field(
         default_factory=TableModel[FlowDemandTimeSchema],
-        json_schema_extra={"sort_keys": ["node_id", "priority", "time"]},
+        json_schema_extra={"sort_keys": ["node_id", "demand_priority", "time"]},
     )
 
 

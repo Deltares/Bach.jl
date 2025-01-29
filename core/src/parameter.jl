@@ -148,7 +148,7 @@ edge: The outflow edge of the source
 type: The type of source (edge, basin, main_to_sub, user_return, buffer)
 capacity: The initial capacity of the source as determined by the physical layer
 capacity_reduced: The capacity adjusted by passed optimizations
-basin_flow_rate: The total outflow rate of a basin when optimized over all sources for one priority.
+basin_flow_rate: The total outflow rate of a basin when optimized over all sources for one demand priority.
     Ignored when the source is not a basin.
 """
 @kwdef mutable struct AllocationSource
@@ -169,7 +169,7 @@ Store information for a subnetwork used for allocation.
 
 subnetwork_id: The ID of this allocation network
 capacity: The capacity per edge of the allocation network, as constrained by nodes that have a max_flow_rate
-flow: The flows over all the edges in the subnetwork for a certain priority (used for allocation_flow output)
+flow: The flows over all the edges in the subnetwork for a certain demand priority (used for allocation_flow output)
 sources: source data in preferred order of optimization
 problem: The JuMP.jl model for solving the allocation problem
 Δt_allocation: The time interval between consecutive allocation solves
@@ -189,7 +189,7 @@ subnetwork_ids: The unique sorted allocation network IDs
 allocation_models: The allocation models for the main network and subnetworks corresponding to
     subnetwork_ids
 main_network_connections: (from_id, to_id) from the main network to the subnetwork per subnetwork
-priorities: All used priority values.
+demand_priorities: All used demand priority values.
 subnetwork_demands: The demand of an edge from the main network to a subnetwork
 subnetwork_allocateds: The allocated flow of an edge from the main network to a subnetwork
 mean_input_flows: Per subnetwork, flows averaged over Δt_allocation over edges that are allocation sources
@@ -203,7 +203,7 @@ record_flow: A record of all flows computed by allocation optimization, eventual
     allocation_models::Vector{AllocationModel} = AllocationModel[]
     main_network_connections::Vector{Vector{Tuple{NodeID, NodeID}}} =
         Vector{Tuple{NodeID, NodeID}}[]
-    priorities::Vector{Int32}
+    demand_priorities::Vector{Int32}
     subnetwork_demands::Dict{Tuple{NodeID, NodeID}, Vector{Float64}} = Dict()
     subnetwork_allocateds::Dict{Tuple{NodeID, NodeID}, Vector{Float64}} = Dict()
     mean_input_flows::Vector{Dict{Tuple{NodeID, NodeID}, Float64}}
@@ -213,7 +213,7 @@ record_flow: A record of all flows computed by allocation optimization, eventual
         subnetwork_id::Vector{Int32},
         node_type::Vector{String},
         node_id::Vector{Int32},
-        priority::Vector{Int32},
+        demand_priority::Vector{Int32},
         demand::Vector{Float64},
         allocated::Vector{Float64},
         realized::Vector{Float64},
@@ -222,7 +222,7 @@ record_flow: A record of all flows computed by allocation optimization, eventual
         subnetwork_id = Int32[],
         node_type = String[],
         node_id = Int32[],
-        priority = Int32[],
+        demand_priority = Int32[],
         demand = Float64[],
         allocated = Float64[],
         realized = Float64[],
@@ -235,7 +235,7 @@ record_flow: A record of all flows computed by allocation optimization, eventual
         to_node_type::Vector{String},
         to_node_id::Vector{Int32},
         subnetwork_id::Vector{Int32},
-        priority::Vector{Int32},
+        demand_priority::Vector{Int32},
         flow_rate::Vector{Float64},
         optimization_type::Vector{String},
     } = (;
@@ -246,7 +246,7 @@ record_flow: A record of all flows computed by allocation optimization, eventual
         to_node_type = String[],
         to_node_id = Int32[],
         subnetwork_id = Int32[],
-        priority = Int32[],
+        demand_priority = Int32[],
         flow_rate = Float64[],
         optimization_type = String[],
     )
@@ -846,14 +846,14 @@ inflow_edge: incoming flow edge
 outflow_edge: outgoing flow edge metadata
     The ID of the source node is always the ID of the UserDemand node
 active: whether this node is active and thus demands water
-demand: water flux demand of UserDemand per priority (node_idx, priority_idx)
-    Each UserDemand has a demand for all priorities,
+demand: water flux demand of UserDemand per demand priority (node_idx, demand_priority_idx)
+    Each UserDemand has a demand for all demand priorities,
     which is 0.0 if it is not provided explicitly.
 demand_reduced: the total demand reduced by allocated flows. This is used for goal programming,
     and requires separate memory from `demand` since demands can come from the BMI
 demand_itp: Timeseries interpolation objects for demands
 demand_from_timeseries: If false the demand comes from the BMI or is fixed
-allocated: water flux currently allocated to UserDemand per priority (node_idx, priority_idx)
+allocated: water flux currently allocated to UserDemand per demand priority (node_idx, demand_priority_idx)
 return_factor: the factor in [0,1] of how much of the abstracted water is given back to the system
 min_level: The level of the source Basin below which the UserDemand does not abstract
 concentration: matrix with boundary concentrations for each Basin and substance
@@ -879,26 +879,26 @@ end
 node_id: node ID of the LevelDemand node
 min_level: The minimum target level of the connected basin(s)
 max_level: The maximum target level of the connected basin(s)
-priority: If in a shortage state, the priority of the demand of the connected basin(s)
+demand_priority: If in a shortage state, the priority of the demand of the connected basin(s)
 """
 @kwdef struct LevelDemand <: AbstractDemandNode
     node_id::Vector{NodeID}
     min_level::Vector{ScalarInterpolation} = fill(-Inf, length(node_id))
     max_level::Vector{ScalarInterpolation} = fill(Inf, length(node_id))
-    priority::Vector{Int32}
+    demand_priority::Vector{Int32}
 end
 
 """
 node_id: node ID of the FlowDemand node
 demand_itp: The time interpolation of the demand of the node
 demand: The current demand of the node
-priority: The priority of the demand of the node
+demand_priority: The priority of the demand of the node
 """
 @kwdef struct FlowDemand <: AbstractDemandNode
     node_id::Vector{NodeID}
     demand_itp::Vector{ScalarInterpolation}
     demand::Vector{Float64}
-    priority::Vector{Int32}
+    demand_priority::Vector{Int32}
 end
 
 "Subgrid linearly interpolates basin levels."

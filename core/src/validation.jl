@@ -129,16 +129,16 @@ sort_by(::StructVector{FlowBoundaryConcentrationV1}) = x -> (x.node_id, x.substa
 sort_by(::StructVector{FlowBoundaryStaticV1}) = x -> (x.node_id)
 sort_by(::StructVector{FlowBoundaryTimeV1}) = x -> (x.node_id, x.time)
 
-sort_by(::StructVector{FlowDemandStaticV1}) = x -> (x.node_id, x.priority)
-sort_by(::StructVector{FlowDemandTimeV1}) = x -> (x.node_id, x.priority, x.time)
+sort_by(::StructVector{FlowDemandStaticV1}) = x -> (x.node_id, x.demand_priority)
+sort_by(::StructVector{FlowDemandTimeV1}) = x -> (x.node_id, x.demand_priority, x.time)
 
 sort_by(::StructVector{LevelBoundaryConcentrationV1}) =
     x -> (x.node_id, x.substance, x.time)
 sort_by(::StructVector{LevelBoundaryStaticV1}) = x -> (x.node_id)
 sort_by(::StructVector{LevelBoundaryTimeV1}) = x -> (x.node_id, x.time)
 
-sort_by(::StructVector{LevelDemandStaticV1}) = x -> (x.node_id, x.priority)
-sort_by(::StructVector{LevelDemandTimeV1}) = x -> (x.node_id, x.priority, x.time)
+sort_by(::StructVector{LevelDemandStaticV1}) = x -> (x.node_id, x.demand_priority)
+sort_by(::StructVector{LevelDemandTimeV1}) = x -> (x.node_id, x.demand_priority, x.time)
 
 sort_by(::StructVector{LinearResistanceStaticV1}) = x -> (x.node_id, x.control_state)
 
@@ -156,8 +156,8 @@ sort_by(::StructVector{TabulatedRatingCurveStaticV1}) =
 sort_by(::StructVector{TabulatedRatingCurveTimeV1}) = x -> (x.node_id, x.time, x.level)
 
 sort_by(::StructVector{UserDemandConcentrationV1}) = x -> (x.node_id, x.substance, x.time)
-sort_by(::StructVector{UserDemandStaticV1}) = x -> (x.node_id, x.priority)
-sort_by(::StructVector{UserDemandTimeV1}) = x -> (x.node_id, x.priority, x.time)
+sort_by(::StructVector{UserDemandStaticV1}) = x -> (x.node_id, x.demand_priority)
+sort_by(::StructVector{UserDemandTimeV1}) = x -> (x.node_id, x.demand_priority, x.time)
 
 """
 Depending on if a table can be sorted, either sort it or assert that it is sorted.
@@ -371,14 +371,14 @@ end
 function valid_demand(
     node_id::Vector{NodeID},
     demand_itp::Vector{Vector{ScalarInterpolation}},
-    priorities::Vector{Int32},
+    demand_priorities::Vector{Int32},
 )::Bool
     errors = false
 
     for (col, id) in zip(demand_itp, node_id)
-        for (demand_p_itp, p_itp) in zip(col, priorities)
+        for (demand_p_itp, p_itp) in zip(col, demand_priorities)
             if any(demand_p_itp.u .< 0.0)
-                @error "Demand of $id with priority $p_itp should be non-negative"
+                @error "Demand of $id with demand_priority $p_itp should be non-negative"
                 errors = true
             end
         end
@@ -631,8 +631,11 @@ function valid_discrete_control(p::Parameters, config::Config)::Bool
     return !errors
 end
 
-function valid_priorities(priorities::Vector{Int32}, use_allocation::Bool)::Bool
-    if use_allocation && any(iszero, priorities)
+function valid_demand_priorities(
+    demand_priorities::Vector{Int32},
+    use_allocation::Bool,
+)::Bool
+    if use_allocation && any(iszero, demand_priorities)
         return false
     else
         return true

@@ -1055,7 +1055,7 @@ function user_demand_static!(
     min_level::Vector{Float64},
     static::StructVector{UserDemandStaticV1},
     ids::Vector{Int32},
-    priorities::Vector{Int32},
+    demand_priorities::Vector{Int32},
 )::Nothing
     for group in IterTools.groupby(row -> row.node_id, static)
         first_row = first(group)
@@ -1072,16 +1072,16 @@ function user_demand_static!(
         min_level[user_demand_idx] = first_row.min_level
 
         for row in group
-            priority_idx = findsorted(priorities, row.priority)
+            demand_priority_idx = findsorted(demand_priorities, row.demand_priority)
             demand_row = coalesce(row.demand, 0.0)
-            demand_itp_old = demand_itp[user_demand_idx][priority_idx]
-            demand_itp[user_demand_idx][priority_idx] = LinearInterpolation(
+            demand_itp_old = demand_itp[user_demand_idx][demand_priority_idx]
+            demand_itp[user_demand_idx][demand_priority_idx] = LinearInterpolation(
                 fill(demand_row, 2),
                 demand_itp_old.t;
                 extrapolate = true,
                 cache_parameters = true,
             )
-            demand[user_demand_idx, priority_idx] = demand_row
+            demand[user_demand_idx, demand_priority_idx] = demand_row
         end
     end
     return nothing
@@ -1096,13 +1096,13 @@ function user_demand_time!(
     min_level::Vector{Float64},
     time::StructVector{UserDemandTimeV1},
     ids::Vector{Int32},
-    priorities::Vector{Int32},
+    demand_priorities::Vector{Int32},
     config::Config,
 )::Bool
     errors = false
     t_end = seconds_since(config.endtime, config.starttime)
 
-    for group in IterTools.groupby(row -> (row.node_id, row.priority), time)
+    for group in IterTools.groupby(row -> (row.node_id, row.demand_priority), time)
         first_row = first(group)
         user_demand_idx = findsorted(ids, first_row.node_id)
 
@@ -1120,7 +1120,7 @@ function user_demand_time!(
 
         min_level[user_demand_idx] = first_row.min_level
 
-        priority_idx = findsorted(priorities, first_row.priority)
+        demand_priority_idx = findsorted(demand_priorities, first_row.demand_priority)
         demand_p_itp = get_scalar_interpolation(
             config.starttime,
             t_end,
@@ -1130,8 +1130,8 @@ function user_demand_time!(
             default_value = 0.0,
             interpolation_type = LinearInterpolation,
         )
-        demand[user_demand_idx, priority_idx] = demand_p_itp(0.0)
-        demand_itp[user_demand_idx][priority_idx] = demand_p_itp
+        demand[user_demand_idx, demand_priority_idx] = demand_p_itp(0.0)
+        demand_itp[user_demand_idx][demand_priority_idx] = demand_p_itp
     end
     return errors
 end
@@ -1149,21 +1149,21 @@ function UserDemand(db::DB, config::Config, graph::MetaGraph)::UserDemand
     end
 
     # Initialize vectors for UserDemand fields
-    priorities = get_all_priorities(db, config)
+    demand_priorities = get_all_demand_priorities(db, config)
     n_user = length(node_ids)
-    n_priority = length(priorities)
+    n_demand_priority = length(demand_priorities)
     active = fill(true, n_user)
-    demand = zeros(n_user, n_priority)
-    demand_reduced = zeros(n_user, n_priority)
+    demand = zeros(n_user, n_demand_priority)
+    demand_reduced = zeros(n_user, n_demand_priority)
     trivial_timespan = [0.0, prevfloat(Inf)]
     demand_itp = [
         ScalarInterpolation[
             LinearInterpolation(zeros(2), trivial_timespan; cache_parameters = true) for
-            i in eachindex(priorities)
+            i in eachindex(demand_priorities)
         ] for j in eachindex(node_ids)
     ]
     demand_from_timeseries = fill(false, n_user)
-    allocated = fill(Inf, n_user, n_priority)
+    allocated = fill(Inf, n_user, n_demand_priority)
     return_factor = [
         LinearInterpolation(zeros(2), trivial_timespan; cache_parameters = true) for
         i in eachindex(node_ids)
@@ -1179,7 +1179,7 @@ function UserDemand(db::DB, config::Config, graph::MetaGraph)::UserDemand
         min_level,
         static,
         ids,
-        priorities,
+        demand_priorities,
     )
 
     # Process time table
@@ -1192,7 +1192,7 @@ function UserDemand(db::DB, config::Config, graph::MetaGraph)::UserDemand
         min_level,
         time,
         ids,
-        priorities,
+        demand_priorities,
         config,
     )
 
@@ -1202,7 +1202,7 @@ function UserDemand(db::DB, config::Config, graph::MetaGraph)::UserDemand
     concentration[:, Substance.UserDemand] .= 1.0
     set_concentrations!(concentration, concentration_time, substances, node_ids)
 
-    if errors || !valid_demand(node_ids, demand_itp, priorities)
+    if errors || !valid_demand(node_ids, demand_itp, demand_priorities)
         error("Errors occurred when parsing UserDemand data.")
     end
 
@@ -1247,7 +1247,7 @@ function LevelDemand(db::DB, config::Config)::LevelDemand
         NodeID.(NodeType.LevelDemand, node_id, eachindex(node_id)),
         parsed_parameters.min_level,
         parsed_parameters.max_level,
-        parsed_parameters.priority,
+        parsed_parameters.demand_priority,
     )
 end
 
@@ -1275,7 +1275,7 @@ function FlowDemand(db::DB, config::Config)::FlowDemand
         node_id = NodeID.(NodeType.FlowDemand, node_id, eachindex(node_id)),
         demand_itp = parsed_parameters.demand,
         demand,
-        parsed_parameters.priority,
+        parsed_parameters.demand_priority,
     )
 end
 
@@ -1501,7 +1501,7 @@ function Allocation(db::DB, config::Config, graph::MetaGraph)::Allocation
     end
 
     return Allocation(;
-        priorities = get_all_priorities(db, config),
+        demand_priorities = get_all_demand_priorities(db, config),
         mean_input_flows,
         mean_realized_flows,
     )

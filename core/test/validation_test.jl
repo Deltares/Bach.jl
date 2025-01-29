@@ -331,14 +331,14 @@ end
     with_logger(logger) do
         node_id = [NodeID(:UserDemand, 1, 1)]
         demand_itp = [[LinearInterpolation([-5.0, -5.0], [-1.8, 1.8])]]
-        priorities = Int32[1]
-        @test !valid_demand(node_id, demand_itp, priorities)
+        demand_priorities = Int32[1]
+        @test !valid_demand(node_id, demand_itp, demand_priorities)
     end
 
     @test length(logger.logs) == 1
     @test logger.logs[1].level == Error
     @test logger.logs[1].message ==
-          "Demand of UserDemand #1 with priority 1 should be non-negative"
+          "Demand of UserDemand #1 with demand_priority 1 should be non-negative"
 end
 
 @testitem "negative storage" begin
@@ -438,7 +438,7 @@ end
     @test occursin("Pump #52 = ", output)
 end
 
-@testitem "Missing priority when allocation is active" begin
+@testitem "Missing demand priority when allocation is active" begin
     using Ribasim
     using Logging
     using IOCapture: capture
@@ -454,11 +454,11 @@ end
     @test length(logger.logs) == 3
     @test logger.logs[1].level == Error
     @test logger.logs[1].message ==
-          "Missing priority parameter(s) for a UserDemand / static node in the allocation problem."
+          "Missing demand_priority parameter(s) for a UserDemand / static node in the allocation problem."
     @test logger.logs[2].message ==
-          "Missing priority parameter(s) for a LevelDemand / static node in the allocation problem."
+          "Missing demand_priority parameter(s) for a LevelDemand / static node in the allocation problem."
     @test logger.logs[3].message ==
-          "Missing priority parameter(s) for a FlowDemand / static node in the allocation problem."
+          "Missing demand_priority parameter(s) for a FlowDemand / static node in the allocation problem."
 end
 
 @testitem "Node ID not in Node table" begin
