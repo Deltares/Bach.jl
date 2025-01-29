@@ -25,6 +25,9 @@ class NodeSchema(_GeoBaseSchema):
     subnetwork_id: Series[pd.Int32Dtype] = pa.Field(
         default=pd.NA, nullable=True, coerce=True
     )
+    source_priority: Series[pd.Int32Dtype] = pa.Field(
+        default=pd.NA, nullable=True, coerce=True
+    )
     geometry: GeoSeries[Point] = pa.Field(default=None, nullable=True)
 
     @classmethod

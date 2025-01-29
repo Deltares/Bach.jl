@@ -128,14 +128,18 @@ end
     verbosity::LogLevel = Info
 end
 
+@option struct DefaultSourcePriority <: TableOption
+    user_demand::Int32 = 1000
+    boundary::Int32 = 2000 # boundary = {flow_boundary, level_boundary}
+    level_demand::Int32 = 3000
+    flow_demand::Int32 = 4000
+    subnetwork_inlet::Int32 = 5000
+end
+
 @option struct Allocation <: TableOption
     timestep::Float64 = 86400
     use_allocation::Bool = false
-    default_source_priority_user_demand::Int = 1000
-    default_source_priority_boundary::Int = 2000
-    default_source_priority_level_demand::Int = 3000
-    default_source_priority_flow_demand::Int = 4000
-    default_source_priority_subnetwork_inlet::Int = 5000
+    default_source_priority::DefaultSourcePriority = DefaultSourcePriority()
 end
 
 @option struct Experimental <: TableOption

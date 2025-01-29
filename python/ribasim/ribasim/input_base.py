@@ -197,13 +197,16 @@ class TableModel(FileModel, Generic[TableT]):
         cls_string = str(cls.tableschema())
         names: list[str] = re.sub("([A-Z]+)", r" \1", cls_string).split()[:-1]
         names_lowered = [name.lower() for name in names]
-        for n in range(1, len(names_lowered) + 1):
-            node_name_snake_case = "_".join(names_lowered[:n])
-            if node_name_snake_case in node_names_snake_case:
-                node_name = "".join(names[:n])
-                table_name = "_".join(names_lowered[n:])
-                return node_name + delimiter + table_name
-        return names[0]
+        if len(names) == 1:
+            return names[0]
+        else:
+            for n in range(1, len(names_lowered) + 1):
+                node_name_snake_case = "_".join(names_lowered[:n])
+                if node_name_snake_case in node_names_snake_case:
+                    node_name = "".join(names[:n])
+                    table_name = "_".join(names_lowered[n:])
+                    return node_name + delimiter + table_name
+            raise ValueError(f"Found no known node name in {cls_string}")
 
     @model_validator(mode="before")
     @classmethod
