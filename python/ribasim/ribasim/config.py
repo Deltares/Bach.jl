@@ -233,7 +233,7 @@ class MultiNodeModel(NodeModel):
         Raises
         ------
         ValueError
-            When the given node ID already exists for this node type
+            When the given node ID already exists
         """
         if tables is None:
             tables = []

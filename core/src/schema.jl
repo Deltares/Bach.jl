@@ -36,9 +36,6 @@
 @schema "ribasim.userdemand.static" UserDemandStatic
 @schema "ribasim.userdemand.time" UserDemandTime
 
-# This schema is not specific to a node type
-@schema "ribasim.allocationsourceorder" AllocationSourceOrder
-
 const delimiter = " / "
 tablename(sv::Type{SchemaVersion{T, N}}) where {T, N} = tablename(sv())
 tablename(sv::SchemaVersion{T, N}) where {T, N} =
@@ -77,12 +74,6 @@ function nodetype(
     end
 
     return Symbol(node[begin:length(n)]), k
-end
-
-@version AllocationSourceOrderV1 begin
-    subnetwork_id::Int32
-    node_id::Int32
-    source_priority::Int32
 end
 
 @version PumpStaticV1 begin

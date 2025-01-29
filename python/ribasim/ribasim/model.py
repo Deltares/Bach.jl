@@ -21,6 +21,7 @@ from pydantic import (
 )
 
 import ribasim
+from ribasim.allocation.source_priorities import AllocationSourcePriorityTable
 from ribasim.config import (
     Allocation,
     Basin,
@@ -106,6 +107,10 @@ class Model(FileModel):
     )
     terminal: Terminal = Field(default_factory=Terminal)
     user_demand: UserDemand = Field(default_factory=UserDemand)
+
+    allocation_source_priority_table: AllocationSourcePriorityTable = Field(
+        default_factory=AllocationSourcePriorityTable
+    )
 
     edge: EdgeTable = Field(default_factory=EdgeTable)
     use_validation: bool = Field(default=True, exclude=True)

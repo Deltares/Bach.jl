@@ -34,22 +34,6 @@ class _BaseSchema(pa.DataFrameModel):
         return f(df, schema_version)
 
 
-class AllocationSourceOrderSchema(_BaseSchema):
-    fid: Index[Int32] = pa.Field(default=1, check_name=True, coerce=True)
-
-    subnetwork_id: Series[Annotated[pd.ArrowDtype, pyarrow.int32()]] = pa.Field(
-        nullable=False
-    )
-
-    node_id: Series[Annotated[pd.ArrowDtype, pyarrow.int32()]] = pa.Field(
-        nullable=False, default=0
-    )
-
-    source_priority: Series[Annotated[pd.ArrowDtype, pyarrow.int32()]] = pa.Field(
-        nullable=False
-    )
-
-
 class BasinConcentrationExternalSchema(_BaseSchema):
     fid: Index[Int32] = pa.Field(default=1, check_name=True, coerce=True)
 
