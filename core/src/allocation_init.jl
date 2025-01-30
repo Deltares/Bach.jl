@@ -484,6 +484,7 @@ TODO: Get preferred source order from input
 function get_sources_in_order(
     problem::JuMP.Model,
     p::Parameters,
+    node_rows::SQLite.Query,
     subnetwork_id::Integer,
 )::OrderedDict{Tuple{NodeID, NodeID}, AllocationSource}
     # NOTE: return flow has to be done before other sources, to prevent that
@@ -552,11 +553,12 @@ An AllocationModel object.
 function AllocationModel(
     subnetwork_id::Int32,
     p::Parameters,
+    node_rows::SQLite.Query,
     Δt_allocation::Float64,
 )::AllocationModel
     capacity = get_capacity(p, subnetwork_id)
     problem = allocation_problem(p, capacity, subnetwork_id)
-    sources = get_sources_in_order(problem, p, subnetwork_id)
+    sources = get_sources_in_order(problem, p, node_rows, subnetwork_id)
     flow = JuMP.Containers.SparseAxisArray(Dict(only(problem[:F].axes) .=> 0.0))
 
     return AllocationModel(; subnetwork_id, capacity, flow, sources, problem, Δt_allocation)

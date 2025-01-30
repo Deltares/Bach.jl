@@ -246,7 +246,7 @@ const conservative_nodetypes = Set{NodeType.T}([
     NodeType.ManningResistance,
 ])
 
-function initialize_allocation!(p::Parameters, config::Config)::Nothing
+function initialize_allocation!(p::Parameters, db::DB, config::Config)::Nothing
     (; graph, allocation) = p
     (; subnetwork_ids, allocation_models, main_network_connections) = allocation
     subnetwork_ids_ = sort(collect(keys(graph[].node_ids)))
@@ -269,10 +269,15 @@ function initialize_allocation!(p::Parameters, config::Config)::Nothing
         find_subnetwork_connections!(p)
     end
 
+    node_rows = execute(
+        db,
+        "SELECT node_id, node_type, subnetwork_id, source_priority FROM Node ORDER BY subnetwork_id, source_priority",
+    )
+
     for subnetwork_id in subnetwork_ids_
         push!(
             allocation_models,
-            AllocationModel(subnetwork_id, p, config.allocation.timestep),
+            AllocationModel(subnetwork_id, p, node_rows, config.allocation.timestep),
         )
     end
     return nothing
@@ -1569,7 +1574,7 @@ function Parameters(db::DB, config::Config)::Parameters
 
     # Allocation data structures
     if config.allocation.use_allocation
-        initialize_allocation!(p, config)
+        initialize_allocation!(p, db, config)
     end
     return p
 end

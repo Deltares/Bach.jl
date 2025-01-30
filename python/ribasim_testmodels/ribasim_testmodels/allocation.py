@@ -881,7 +881,7 @@ def linear_resistance_demand_model():
     )
 
     model.flow_demand.add(
-        Node(4, Point(1, 1), subnetwork_id=2),
+        Node(4, Point(1, 1), subnetwork_id=2, source_priority=1),
         [flow_demand.Static(demand_priority=[1], demand=2.0)],
     )
 

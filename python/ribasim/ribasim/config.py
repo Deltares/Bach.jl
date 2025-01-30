@@ -55,6 +55,20 @@ from ribasim.schemas import (
 from ribasim.utils import _concat, _pascal_to_snake
 
 
+class DefaultSourcePriority(ChildModel):
+    """
+    Specify per source node type what its default source priority is.
+
+    flow_boundary and level_boundary nodes are combined into the single category 'boundary'.
+    """
+
+    user_demand: int = 1000
+    boundary: int = 2000
+    level_demand: int = 3000
+    flow_demand: int = 4000
+    subnetwork_inlet: int = 5000
+
+
 class Allocation(ChildModel):
     """
     Defines the allocation optimization algorithm options.
@@ -70,6 +84,7 @@ class Allocation(ChildModel):
 
     timestep: float = 86400.0
     use_allocation: bool = False
+    default_source_priority: DefaultSourcePriority = DefaultSourcePriority()
 
 
 class Results(ChildModel):
@@ -173,12 +188,15 @@ class Node(pydantic.BaseModel):
         An optional name of the node.
     subnetwork_id : int
         Optionally adds this node to a subnetwork, which is input for the allocation algorithm.
+    source_priority : int
+        Optionally adds a source priority to this node, which is input for the allocation algorithm.
     """
 
     node_id: NonNegativeInt | None = None
     geometry: Point
     name: str = ""
     subnetwork_id: int | None = None
+    source_priority: int | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="allow")
 
@@ -203,6 +221,9 @@ class Node(pydantic.BaseModel):
                 "node_type": pd.Series([node_type], dtype=str),
                 "name": pd.Series([self.name], dtype=str),
                 "subnetwork_id": pd.Series([self.subnetwork_id], dtype=pd.Int32Dtype()),
+                "source_priority": pd.Series(
+                    [self.source_priority], dtype=pd.Int32Dtype()
+                ),
                 **extra,
             },
             geometry=[self.geometry],
