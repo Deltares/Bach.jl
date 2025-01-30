@@ -108,7 +108,6 @@ codegen = { cmd = "julia --project utils/gen_python.jl && ruff format python/rib
     "python/ribasim/ribasim/validation.py",
 ] }
 # Publish
-add-ribasim-icon = { cmd = "rcedit build/ribasim/ribasim.exe --set-icon docs/assets/ribasim.ico" }
 build-ribasim-python-wheel = { cmd = "rm --recursive --force dist && hatch build && twine check dist/*", cwd = "python/ribasim" }
 build-ribasim-api-wheel = { cmd = "rm --recursive --force dist && hatch build && twine check dist/*", cwd = "python/ribasim_api" }
 build-wheels = { depends-on = [
@@ -156,6 +155,7 @@ ribasim-core-testmodels = { cmd = "julia --project --threads=4 utils/testmodelru
 github-release = "python utils/github-release.py"
 
 [feature.dev.target.win.tasks]
+add-ribasim-icon = { cmd = "rcedit build/ribasim/ribasim.exe --set-icon docs/assets/ribasim.ico" }
 # Workaround rare issue on Windows where the permissions of the artifacts directory are incorrect
 # Upstream issue: https://github.com/JuliaLang/julia/issues/52272
 reset-artifact-permissions = "icacls $homedrive/$homepath/.julia/artifacts /q /c /t /reset"
@@ -168,8 +168,6 @@ install-ci = { depends-on = [
 [dependencies]
 geopandas = ">=1.0"
 hatchling = "*"
-ipykernel = ">=6.29"
-ipywidgets = ">=8.1.3"
 jinja2 = "*"
 matplotlib = ">=3.7"
 minio = "*"
@@ -179,7 +177,7 @@ numpy = ">=1.25"
 pandas = ">=2.0"
 pandas-stubs = "*"
 pandera = ">=0.20"
-pip = "*"
+plotly = "*"
 pyarrow = ">=17.0"
 pydantic = ">=2.0"
 pyogrio = ">=0.8"
@@ -204,8 +202,7 @@ ribasim_testmodels = { path = "python/ribasim_testmodels", editable = true }
 gh = "*"
 hatch = "*"
 juliaup = "*"
-jupyterlab = "*"
-libgdal-arrow-parquet = "*"
+jupyter = "*"
 mypy = "*"
 pre-commit = "*"
 pyqt-stubs = "*"
