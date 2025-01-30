@@ -19,7 +19,7 @@
     t = 0.0
     Ribasim.allocate_demands!(p, allocation_model, t, u)
 
-    # Last priority (= 2) flows
+    # Last demand priority (= 2) flows
     @test flow[(NodeID(:Basin, 2, p), NodeID(:Pump, 5, p))] ≈ 0.0
     @test flow[(NodeID(:Basin, 2, p), NodeID(:UserDemand, 10, p))] ≈ 0.5
     @test flow[(NodeID(:Basin, 8, p), NodeID(:UserDemand, 12, p))] ≈ 3.0 rtol = 1e-5
@@ -50,7 +50,7 @@ end
     (; user_demand) = p
     allocation_model = p.allocation.allocation_models[1]
     Ribasim.set_initial_values!(allocation_model, u, p, t)
-    Ribasim.set_objective_priority!(allocation_model, u, p, t, 1)
+    Ribasim.set_objective_demand_priority!(allocation_model, u, p, t, 1)
     objective = JuMP.objective_function(allocation_model.problem)
     @test objective isa JuMP.QuadExpr # Quadratic expression
     F = allocation_model.problem[:F]
@@ -153,7 +153,14 @@ end
     main_source =
         allocation_model.sources[(NodeID(:FlowBoundary, 1, p), NodeID(:Basin, 2, p))]
     main_source.capacity_reduced = 4.5
-    Ribasim.optimize_priority!(allocation_model, u, p, t, 1, OptimizationType.allocate)
+    Ribasim.optimize_demand_priority!(
+        allocation_model,
+        u,
+        p,
+        t,
+        1,
+        OptimizationType.allocate,
+    )
 
     # Main network objective function
     F = problem[:F]
@@ -357,8 +364,10 @@ end
         flow_table_user_3.flow_rate,
         Ribasim.seconds_since.(flow_table_user_3.time, model.config.starttime),
     )
-    df_user_3 =
-        record_demand[(record_demand.node_id .== 3) .&& (record_demand.priority .== 1), :]
+    df_user_3 = record_demand[
+        (record_demand.node_id .== 3) .&& (record_demand.demand_priority .== 1),
+        :,
+    ]
     realized_numeric = diff(integral.(Ref(itp_user_3), df_user_3.time)) ./ Δt_allocation
     @test all(isapprox.(realized_numeric[3:end], df_user_3.realized[4:end], atol = 5e-4))
 end
@@ -416,7 +425,7 @@ end
         2e-3
 
     # Priority 1
-    Ribasim.optimize_priority!(
+    Ribasim.optimize_demand_priority!(
         allocation_model,
         model.integrator.u,
         p,
@@ -434,7 +443,7 @@ end
     @test flow_demand.demand[1] ≈ flow_demand.demand_itp[1](t) - 0.001 rtol = 1e-3
 
     ## Priority 2
-    Ribasim.optimize_priority!(
+    Ribasim.optimize_demand_priority!(
         allocation_model,
         model.integrator.u,
         p,
@@ -448,7 +457,7 @@ end
     @test JuMP.value(only(F_flow_buffer_in)) ≈ only(flow_demand.demand) atol = 1e-10
 
     ## Priority 3
-    Ribasim.optimize_priority!(
+    Ribasim.optimize_demand_priority!(
         allocation_model,
         model.integrator.u,
         p,
@@ -456,7 +465,7 @@ end
         3,
         optimization_type,
     )
-    # The flow from the source is used up in previous priorities
+    # The flow from the source is used up in previous demand priorities
     @test flow[(NodeID(:LevelBoundary, 1, p), node_id_with_flow_demand)] ≈ 0 atol = 1e-10
     # So flow from the flow buffer is used for UserDemand #4
     @test JuMP.value(F_flow_buffer_out[node_id_with_flow_demand]) ≈ 0.001 rtol = 1e-3
@@ -467,7 +476,7 @@ end
         1e-10
 
     ## Priority 4
-    Ribasim.optimize_priority!(
+    Ribasim.optimize_demand_priority!(
         allocation_model,
         model.integrator.u,
         p,
@@ -494,7 +503,7 @@ end
                 :subnetwork_id,
                 :node_type,
                 :node_id,
-                :priority,
+                :demand_priority,
                 :demand,
                 :allocated,
                 :realized,
@@ -510,7 +519,7 @@ end
                 :to_node_type,
                 :to_node_id,
                 :subnetwork_id,
-                :priority,
+                :demand_priority,
                 :flow_rate,
                 :optimization_type,
             ),
@@ -576,12 +585,16 @@ end
     (; p) = model.integrator
     t = 0.0
     u = model.integrator.u
-    priority_idx = 2
+    demand_priority_idx = 2
 
     allocation_model = first(p.allocation.allocation_models)
     Ribasim.set_initial_values!(allocation_model, u, p, t)
-    Ribasim.set_objective_priority!(allocation_model, u, p, t, priority_idx)
-    Ribasim.allocate_to_users_from_connected_basin!(allocation_model, p, priority_idx)
+    Ribasim.set_objective_demand_priority!(allocation_model, u, p, t, demand_priority_idx)
+    Ribasim.allocate_to_users_from_connected_basin!(
+        allocation_model,
+        p,
+        demand_priority_idx,
+    )
     flow_data = allocation_model.flow.data
     @test flow_data[(NodeID(:FlowBoundary, 1, p), NodeID(:Basin, 2, p))] == 0.0
     @test flow_data[(NodeID(:Basin, 2, p), NodeID(:UserDemand, 3, p))] == 0.0015

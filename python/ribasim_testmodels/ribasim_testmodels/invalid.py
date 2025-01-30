@@ -172,7 +172,7 @@ def invalid_unstable_model() -> Model:
 
 
 def invalid_priorities_model() -> Model:
-    """Model with allocation active but missing priority parameter(s)."""
+    """Model with allocation active but missing demand_priority parameter(s)."""
     model = Model(
         starttime="2020-01-01 00:00:00",
         endtime="2021-01-01 00:00:00",

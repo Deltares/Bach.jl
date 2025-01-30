@@ -21,8 +21,13 @@ ribasim_version = "2025.1.0" # required
 time = "basin/time.arrow"
 
 [allocation]
-timestep = 86400                   # optional (required if use_allocation = true), default 86400
-use_allocation = false             # optional, default false
+timestep = 86400                                 # optional (required if use_allocation = true), default 86400
+use_allocation = false                           # optional, default false
+default_source_priority_user_demand = 1000       # optional, default 1000
+default_source_priority_boundary = 2000          # optional, default 2000
+default_source_priority_level_demand = 3000      # optional, default 3000
+default_source_priority_flow_demand = 4000       # optional, default 4000
+default_source_priority_subnetwork_inlet = 5000  # optional, default 5000
 
 [solver]
 algorithm = "QNDF"  # optional, default "QNDF"

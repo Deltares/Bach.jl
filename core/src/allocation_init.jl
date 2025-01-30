@@ -1,7 +1,7 @@
 """Find the edges from the main network to a subnetwork."""
 function find_subnetwork_connections!(p::Parameters)::Nothing
     (; allocation, graph, allocation) = p
-    n_priorities = length(allocation.priorities)
+    n_demand_priorities = length(allocation.demand_priorities)
     (; subnetwork_demands, subnetwork_allocateds) = allocation
     # Find edges (node_id, outflow_id) where the source node has subnetwork id 1 and the
     # destination node subnetwork id ≠1
@@ -12,10 +12,10 @@ function find_subnetwork_connections!(p::Parameters)::Nothing
                     get_main_network_connections(p, graph[outflow_id].subnetwork_id)
                 edge = (node_id, outflow_id)
                 push!(main_network_source_edges, edge)
-                # Allocate memory for the demands and priorities
+                # Allocate memory for the demands and demand priorities
                 # from the subnetwork via this edge
-                subnetwork_demands[edge] = zeros(n_priorities)
-                subnetwork_allocateds[edge] = zeros(n_priorities)
+                subnetwork_demands[edge] = zeros(n_demand_priorities)
+                subnetwork_allocateds[edge] = zeros(n_demand_priorities)
             end
         end
     end
@@ -244,7 +244,7 @@ Add capacity constraints to the outflow edge of UserDemand nodes.
 The constraint indices are the UserDemand node IDs.
 
 Constraint:
-flow over UserDemand edge outflow edge <= cumulative return flow from previous priorities
+flow over UserDemand edge outflow edge <= cumulative return flow from previous demand priorities
 """
 function add_constraints_user_source!(
     problem::JuMP.Model,
@@ -484,10 +484,11 @@ TODO: Get preferred source order from input
 function get_sources_in_order(
     problem::JuMP.Model,
     p::Parameters,
+    node_rows::SQLite.Query,
     subnetwork_id::Integer,
 )::OrderedDict{Tuple{NodeID, NodeID}, AllocationSource}
     # NOTE: return flow has to be done before other sources, to prevent that
-    # return flow is directly used within the same priority
+    # return flow is directly used within the same source priority
 
     (; basin, user_demand, graph, allocation) = p
 
@@ -552,11 +553,12 @@ An AllocationModel object.
 function AllocationModel(
     subnetwork_id::Int32,
     p::Parameters,
+    node_rows::SQLite.Query,
     Δt_allocation::Float64,
 )::AllocationModel
     capacity = get_capacity(p, subnetwork_id)
     problem = allocation_problem(p, capacity, subnetwork_id)
-    sources = get_sources_in_order(problem, p, subnetwork_id)
+    sources = get_sources_in_order(problem, p, node_rows, subnetwork_id)
     flow = JuMP.Containers.SparseAxisArray(Dict(only(problem[:F].axes) .=> 0.0))
 
     return AllocationModel(; subnetwork_id, capacity, flow, sources, problem, Δt_allocation)

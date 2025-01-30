@@ -61,6 +61,7 @@ While physically incorrect, it is useful for a first correctness check on a mode
 Currently there are the following allocation settings:
 - `use_allocation`: A boolean which says whether allocation should be used or not;
 - `timestep`: a float value in seconds which dictates the update interval for allocations.
+- `default_source_priority_*`: an integer per source type for the allocation algorithm: `user_demand`, `boundary`, `level_demand`, `flow_demand`, `subnetwork_inlet`. Flow boundaries and level boundaries are combined in the single category `boundary`.
 
 ## Results settings
 

@@ -14,7 +14,7 @@ pythontype(::Type{<:Bool}) = "Series[Annotated[pd.ArrowDtype, pyarrow.bool_()]]"
 pythontype(::Type{<:Enum}) = "Series[Annotated[pd.ArrowDtype, pyarrow.string()]]"
 pythontype(::Type{<:DateTime}) = "Series[Annotated[pd.ArrowDtype, pyarrow.timestamp('ms')]]"
 
-isnullable(_) = "False"
+isnullable(::Any) = "False"
 isnullable(::Type{T}) where {T >: Union{Missing}} = "True"
 
 function strip_prefix(T::DataType)

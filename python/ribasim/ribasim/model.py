@@ -701,7 +701,13 @@ class Model(FileModel):
 
         alloc_flow_df = pd.read_feather(
             alloc_flow_path,
-            columns=["time", "edge_id", "flow_rate", "optimization_type", "priority"],
+            columns=[
+                "time",
+                "edge_id",
+                "flow_rate",
+                "optimization_type",
+                "demand_priority",
+            ],
             dtype_backend="pyarrow",
         )
         _time_in_ns(alloc_flow_df)
@@ -711,7 +717,7 @@ class Model(FileModel):
         edge_lookup = _edge_lookup(uds)
         alloc_flow_df[edge_dim] = edge_lookup[alloc_flow_df["edge_id"]].to_numpy()
 
-        # "flow_rate_allocated" is the sum of all allocated flow rates over the priorities
+        # "flow_rate_allocated" is the sum of all allocated flow rates over the demand priorities
         allocate_df = alloc_flow_df.loc[
             alloc_flow_df["optimization_type"] == "allocate"
         ]
@@ -719,12 +725,12 @@ class Model(FileModel):
             allocate_df.groupby(["time", edge_dim])["flow_rate"].sum().to_xarray()
         )
 
-        # also add the individual priorities and optimization types
+        # also add the individual demand priorities and optimization types
         # added as separate variables to ensure QGIS / MDAL compatibility
-        for (optimization_type, priority), group in alloc_flow_df.groupby(
-            ["optimization_type", "priority"]
+        for (optimization_type, demand_priority), group in alloc_flow_df.groupby(
+            ["optimization_type", "demand_priority"]
         ):
-            varname = f"{optimization_type}_priority_{priority}"
+            varname = f"{optimization_type}_priority_{demand_priority}"
             da = group.set_index(["time", edge_dim])["flow_rate"].to_xarray()
             uds[varname] = da
 

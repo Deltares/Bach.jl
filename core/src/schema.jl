@@ -299,7 +299,7 @@ end
     demand::Union{Missing, Float64}
     return_factor::Float64
     min_level::Float64
-    priority::Union{Missing, Int32}
+    demand_priority::Union{Missing, Int32}
 end
 
 @version UserDemandTimeV1 begin
@@ -308,7 +308,7 @@ end
     demand::Float64
     return_factor::Float64
     min_level::Float64
-    priority::Union{Missing, Int32}
+    demand_priority::Union{Missing, Int32}
 end
 
 @version UserDemandConcentrationV1 begin
@@ -322,7 +322,7 @@ end
     node_id::Int32
     min_level::Union{Missing, Float64}
     max_level::Union{Missing, Float64}
-    priority::Union{Missing, Int32}
+    demand_priority::Union{Missing, Int32}
 end
 
 @version LevelDemandTimeV1 begin
@@ -330,18 +330,18 @@ end
     time::DateTime
     min_level::Union{Missing, Float64}
     max_level::Union{Missing, Float64}
-    priority::Union{Missing, Int32}
+    demand_priority::Union{Missing, Int32}
 end
 
 @version FlowDemandStaticV1 begin
     node_id::Int
     demand::Float64
-    priority::Union{Missing, Int32}
+    demand_priority::Union{Missing, Int32}
 end
 
 @version FlowDemandTimeV1 begin
     node_id::Int
     time::DateTime
     demand::Float64
-    priority::Union{Missing, Int32}
+    demand_priority::Union{Missing, Int32}
 end

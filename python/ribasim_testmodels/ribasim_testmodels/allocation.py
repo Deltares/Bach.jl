@@ -38,7 +38,7 @@ def user_demand_model() -> Model:
         Node(2, Point(1, 0.5)),
         [
             user_demand.Static(
-                demand=[1e-4], return_factor=0.9, min_level=0.9, priority=1
+                demand=[1e-4], return_factor=0.9, min_level=0.9, demand_priority=1
             )
         ],
     )
@@ -55,7 +55,7 @@ def user_demand_model() -> Model:
                 demand=[0.0, 3e-4, 3e-4, 0.0],
                 return_factor=0.4,
                 min_level=0.5,
-                priority=1,
+                demand_priority=1,
             )
         ],
     )
@@ -72,7 +72,7 @@ def user_demand_model() -> Model:
                 min_level=0.0,
                 demand=[0.0, 1e-4, 2e-4, 0.0],
                 return_factor=[0.0, 0.1, 0.2, 0.3],
-                priority=1,
+                demand_priority=1,
             )
         ],
     )
@@ -133,7 +133,7 @@ def subnetwork_model() -> Model:
         Node(10, Point(2, 0), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[4.0], return_factor=0.9, min_level=0.9, priority=2
+                demand=[4.0], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -141,7 +141,7 @@ def subnetwork_model() -> Model:
         Node(11, Point(3, 3), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[5.0], return_factor=0.5, min_level=0.9, priority=1
+                demand=[5.0], return_factor=0.5, min_level=0.9, demand_priority=1
             )
         ],
     )
@@ -149,7 +149,7 @@ def subnetwork_model() -> Model:
         Node(12, Point(0, 4), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[3.0], return_factor=0.9, min_level=0.9, priority=2
+                demand=[3.0], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -200,7 +200,7 @@ def looped_subnetwork_model() -> Model:
         Node(1, Point(0, 0), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=2
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -224,7 +224,7 @@ def looped_subnetwork_model() -> Model:
         Node(12, Point(-2, 4), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=1
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=1
             )
         ],
     )
@@ -244,7 +244,7 @@ def looped_subnetwork_model() -> Model:
         Node(18, Point(-1, 6), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=3
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=3
             )
         ],
     )
@@ -255,7 +255,7 @@ def looped_subnetwork_model() -> Model:
         Node(20, Point(2, 6), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=3
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=3
             )
         ],
     )
@@ -266,7 +266,7 @@ def looped_subnetwork_model() -> Model:
         Node(24, Point(3, 3), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=2
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -333,7 +333,7 @@ def minimal_subnetwork_model() -> Model:
         Node(5, Point(-1, 4), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=1
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=1
             )
         ],
     )
@@ -345,7 +345,7 @@ def minimal_subnetwork_model() -> Model:
                 demand=[1e-3, 2e-3],
                 return_factor=0.9,
                 min_level=0.9,
-                priority=1,
+                demand_priority=1,
             )
         ],
     )
@@ -384,7 +384,7 @@ def allocation_example_model() -> Model:
         Node(3, Point(1, 1), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1.5], return_factor=0.0, min_level=-1.0, priority=1
+                demand=[1.5], return_factor=0.0, min_level=-1.0, demand_priority=1
             )
         ],
     )
@@ -397,7 +397,7 @@ def allocation_example_model() -> Model:
         Node(6, Point(3, 1), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1.0], return_factor=0.0, min_level=-1.0, priority=3
+                demand=[1.0], return_factor=0.0, min_level=-1.0, demand_priority=3
             )
         ],
     )
@@ -492,7 +492,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(20, Point(2, 3), subnetwork_id=3),
         [
             user_demand.Static(
-                demand=[4.0], return_factor=0.9, min_level=0.9, priority=2
+                demand=[4.0], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -500,7 +500,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(21, Point(3, 6), subnetwork_id=3),
         [
             user_demand.Static(
-                demand=[5.0], return_factor=0.9, min_level=0.9, priority=1
+                demand=[5.0], return_factor=0.9, min_level=0.9, demand_priority=1
             )
         ],
     )
@@ -508,7 +508,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(22, Point(0, 7), subnetwork_id=3),
         [
             user_demand.Static(
-                demand=[3.0], return_factor=0.9, min_level=0.9, priority=2
+                demand=[3.0], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -534,7 +534,7 @@ def main_network_with_subnetworks_model() -> Model:
                 demand=[1e-3, 2e-3],
                 return_factor=0.9,
                 min_level=0.9,
-                priority=1,
+                demand_priority=1,
             )
         ],
     )
@@ -542,7 +542,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(34, Point(26, 3), subnetwork_id=7),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=2
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -575,7 +575,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(45, Point(24, 7), subnetwork_id=7),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=1
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=1
             )
         ],
     )
@@ -597,7 +597,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(51, Point(25, 9), subnetwork_id=7),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=3
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=3
             )
         ],
     )
@@ -609,7 +609,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(53, Point(28, 9), subnetwork_id=7),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=3
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=3
             )
         ],
     )
@@ -623,7 +623,7 @@ def main_network_with_subnetworks_model() -> Model:
         Node(57, Point(29, 6), subnetwork_id=7),
         [
             user_demand.Static(
-                demand=[1e-3], return_factor=0.9, min_level=0.9, priority=2
+                demand=[1e-3], return_factor=0.9, min_level=0.9, demand_priority=2
             )
         ],
     )
@@ -631,7 +631,7 @@ def main_network_with_subnetworks_model() -> Model:
     # Missing demand
     model.user_demand.add(
         Node(60, Point(21, -1), subnetwork_id=1),
-        [user_demand.Static(return_factor=[0.9], priority=2, min_level=0.0)],
+        [user_demand.Static(return_factor=[0.9], demand_priority=2, min_level=0.0)],
     )
 
     model.edge.add(model.flow_boundary[1], model.basin[2])
@@ -747,13 +747,13 @@ def level_demand_model() -> Model:
         Node(3, Point(2, 0), subnetwork_id=2),
         [
             user_demand.Static(
-                demand=[1.5e-3], return_factor=0.2, min_level=0.2, priority=2
+                demand=[1.5e-3], return_factor=0.2, min_level=0.2, demand_priority=2
             )
         ],
     )
     model.level_demand.add(
         Node(4, Point(1, -1), subnetwork_id=2),
-        [level_demand.Static(min_level=[1.0], max_level=1.5, priority=1)],
+        [level_demand.Static(min_level=[1.0], max_level=1.5, demand_priority=1)],
     )
     model.basin.add(
         Node(5, Point(2, -1), subnetwork_id=2),
@@ -763,7 +763,7 @@ def level_demand_model() -> Model:
     # Isolated LevelDemand + Basin pair to test optional min_level
     model.level_demand.add(
         Node(6, Point(3, -1), subnetwork_id=3),
-        [level_demand.Static(max_level=[1.0], priority=1)],
+        [level_demand.Static(max_level=[1.0], demand_priority=1)],
     )
     model.basin.add(
         Node(7, Point(3, 0), subnetwork_id=3),
@@ -814,7 +814,7 @@ def flow_demand_model() -> Model:
         Node(4, Point(3, 0), subnetwork_id=2),
         [
             user_demand.Static(
-                priority=[3], demand=1e-3, return_factor=1.0, min_level=0.2
+                demand_priority=[3], demand=1e-3, return_factor=1.0, min_level=0.2
             )
         ],
     )
@@ -822,7 +822,7 @@ def flow_demand_model() -> Model:
         Node(6, Point(2, -1), subnetwork_id=2),
         [
             user_demand.Static(
-                priority=[1], demand=1e-3, return_factor=1.0, min_level=0.2
+                demand_priority=[1], demand=1e-3, return_factor=1.0, min_level=0.2
             )
         ],
     )
@@ -830,14 +830,14 @@ def flow_demand_model() -> Model:
         Node(8, Point(3, -2), subnetwork_id=2),
         [
             user_demand.Static(
-                priority=[4], demand=2e-3, return_factor=1.0, min_level=0.2
+                demand_priority=[4], demand=2e-3, return_factor=1.0, min_level=0.2
             )
         ],
     )
 
     model.flow_demand.add(
         Node(5, Point(1, -1), subnetwork_id=2),
-        [flow_demand.Static(demand=2e-3, priority=[2])],
+        [flow_demand.Static(demand=2e-3, demand_priority=[2])],
     )
 
     model.edge.add(
@@ -881,8 +881,8 @@ def linear_resistance_demand_model():
     )
 
     model.flow_demand.add(
-        Node(4, Point(1, 1), subnetwork_id=2),
-        [flow_demand.Static(priority=[1], demand=2.0)],
+        Node(4, Point(1, 1), subnetwork_id=2, source_priority=1),
+        [flow_demand.Static(demand_priority=[1], demand=2.0)],
     )
 
     model.edge.add(model.basin[1], model.linear_resistance[2])
@@ -939,7 +939,7 @@ def fair_distribution_model():
         Node(6, Point(2, 1), subnetwork_id=1),
         [
             user_demand.Static(
-                priority=[1], demand=1.0, return_factor=1.0, min_level=0.2
+                demand_priority=[1], demand=1.0, return_factor=1.0, min_level=0.2
             )
         ],
     )
@@ -948,7 +948,7 @@ def fair_distribution_model():
         Node(7, Point(2, -1), subnetwork_id=1),
         [
             user_demand.Static(
-                priority=[1], demand=2.0, return_factor=1.0, min_level=0.2
+                demand_priority=[1], demand=2.0, return_factor=1.0, min_level=0.2
             )
         ],
     )
@@ -957,7 +957,7 @@ def fair_distribution_model():
         Node(8, Point(4, 1), subnetwork_id=1),
         [
             user_demand.Static(
-                priority=[1], demand=3.0, return_factor=1.0, min_level=0.2
+                demand_priority=[1], demand=3.0, return_factor=1.0, min_level=0.2
             )
         ],
     )
@@ -966,7 +966,7 @@ def fair_distribution_model():
         Node(9, Point(4, -1), subnetwork_id=1),
         [
             user_demand.Time(
-                priority=1,
+                demand_priority=1,
                 time=pd.date_range(start="2020-01", end="2021-01", freq="MS"),
                 demand=np.linspace(1.0, 5.0, 13),
                 return_factor=1.0,
@@ -1057,7 +1057,7 @@ def allocation_training_model():
             level_demand.Static(
                 min_level=[2],
                 max_level=5,
-                priority=1,
+                demand_priority=1,
             )
         ],
     )
@@ -1089,7 +1089,7 @@ def allocation_training_model():
                 demand=[0.0, 0.0, 10, 12, 12, 0.0],
                 return_factor=0,
                 min_level=0,
-                priority=3,
+                demand_priority=3,
                 time=[
                     "2022-01-01",
                     "2022-03-31",
@@ -1130,7 +1130,7 @@ def allocation_training_model():
                 demand=[2.0, 2.3, 2.3, 2.4, 3, 3, 4, 3, 2.5, 2.2, 2.0, 2.0],
                 return_factor=0.4,
                 min_level=0,
-                priority=2,
+                demand_priority=2,
                 time=pd.date_range(start="2022-01-01", periods=12, freq="MS"),
             )
         ],
@@ -1145,7 +1145,7 @@ def allocation_training_model():
                 demand=[4, 4, 4.5, 5, 5, 6, 7.5, 8, 5, 4, 3, 2.0],
                 return_factor=0.5,
                 min_level=0,
-                priority=1,
+                demand_priority=1,
                 time=pd.date_range(start="2022-01-01", periods=12, freq="MS"),
             )
         ],
