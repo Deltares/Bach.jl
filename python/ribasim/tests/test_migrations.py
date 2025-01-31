@@ -9,7 +9,7 @@ print(root_folder)
 
 
 @pytest.mark.regression
-def test_hws_migration():
+def test_hws_migration(tmp_path):
     toml_path = root_folder / "models/hws_migration_test/hws.toml"
     db_path = root_folder / "models/hws_migration_test/database.gpkg"
 
@@ -22,3 +22,4 @@ def test_hws_migration():
 
     assert model.link.df.index.name == "link_id"
     assert len(model.link.df) == 454
+    model.write(tmp_path / "hws_migrated.toml")

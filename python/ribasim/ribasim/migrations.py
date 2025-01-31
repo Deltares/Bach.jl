@@ -7,6 +7,16 @@ from pandas import DataFrame
 # Do the same for write_schema_version in ribasim_qgis/core/geopackage.py
 
 
+def _rename_column(df, from_colname, to_colname):
+    """Rename a column, ensuring we don't end up with two of the same name."""
+    # If a column has a default value, or is nullable, they are always added.
+    # Remove that column first, then rename the old column.
+    # Only call this if from_colname is in the DataFrame.
+    df.drop(columns="link_type", inplace=True, errors="ignore")
+    df.rename(columns={from_colname: to_colname}, inplace=True, errors="raise")
+    return df
+
+
 def nodeschema_migration(gdf: GeoDataFrame, schema_version: int) -> GeoDataFrame:
     if schema_version == 0 and "node_id" in gdf.columns:
         warnings.warn("Migrating outdated Node table.", UserWarning)
@@ -35,7 +45,7 @@ def linkschema_migration(gdf: GeoDataFrame, schema_version: int) -> GeoDataFrame
         gdf.index.rename("link_id", inplace=True)
     if schema_version < 4 and "edge_type" in gdf.columns:
         warnings.warn("Migrating outdated Link table.", UserWarning)
-        gdf.rename(columns={"edge_type": "link_type"}, inplace=True)
+        _rename_column(gdf, "edge_type", "link_type")
 
     return gdf
 
@@ -91,8 +101,6 @@ def pidcontrolstaticschema_migration(df: DataFrame, schema_version: int) -> Data
 def outletstaticschema_migration(df: DataFrame, schema_version: int) -> DataFrame:
     if schema_version < 2:
         warnings.warn("Migrating outdated Outlet / static table.", UserWarning)
-        # First remove automatically added empty column.
-        df.drop(columns="min_upstream_level", inplace=True, errors="ignore")
-        df.rename(columns={"min_crest_level": "min_upstream_level"}, inplace=True)
+        _rename_column(df, "min_crest_level", "min_upstream_level")
 
     return df
