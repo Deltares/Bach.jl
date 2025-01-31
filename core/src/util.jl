@@ -76,7 +76,7 @@ function get_scalar_interpolation(
     interpolation_type::Type{<:AbstractInterpolation},
 )::interpolation_type
     rows = searchsorted(time.node_id, node_id)
-    parameter = getfield.(time, param)[rows]
+    parameter = getproperty(time, param)[rows]
     parameter = coalesce.(parameter, default_value)
     times = seconds_since.(time.time[rows], starttime)
     # Add extra timestep at start for constant extrapolation
