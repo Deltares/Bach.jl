@@ -68,7 +68,6 @@ end
 "Linear interpolation of a scalar with constant extrapolation."
 function get_scalar_interpolation(
     starttime::DateTime,
-    t_end::Float64,
     time::AbstractVector,
     node_id::NodeID,
     param::Symbol;
@@ -79,22 +78,17 @@ function get_scalar_interpolation(
     parameter = getproperty(time, param)[rows]
     parameter = coalesce.(parameter, default_value)
     times = seconds_since.(time.time[rows], starttime)
-    # Add extra timestep at start for constant extrapolation
-    if times[1] > 0
-        pushfirst!(times, nextfloat(-Inf))
-        pushfirst!(parameter, parameter[1])
-    end
-    # Add extra timestep at end for constant extrapolation
-    if times[end] < t_end
-        push!(times, t_end)
-        push!(parameter, parameter[end])
-    end
 
     if !allunique(times)
         @error "The time series for $node_id has repeated times, this can not be interpolated."
         error("Invalid time series.")
     end
-    return interpolation_type(parameter, times; extrapolate = true, cache_parameters = true)
+    return interpolation_type(
+        parameter,
+        times;
+        extrapolation = Constant,
+        cache_parameters = true,
+    )
 end
 
 """
@@ -130,14 +124,11 @@ function qh_interpolation(
 
     errors && error("Errors occurred when parsing $node_id.")
 
-    # Ensure that that Q stays 0 below the first level
-    pushfirst!(level, first(level) - 1)
-    pushfirst!(flow_rate, first(flow_rate))
-
     return LinearInterpolation(
         flow_rate,
         level;
-        extrapolate = true,
+        extrapolation_left = Constant,
+        extrapolation_right = Linear,
         cache_parameters = true,
     )
 end

@@ -34,7 +34,7 @@ look_ahead           | Float64  | $\text{s}$ | Only on transient boundary condit
 
 ## Function
 
-The function table defines a piecewise linear function $f$ interpolating between `(input, output)` datapoints for each `ContinuousControl` node. The total computation thus looks like
+The function table defines a piecewise linear function $f$ interpolating between `(input, output)` datapoints for each `ContinuousControl` node. It linearly extrapolates. The total computation thus looks like
 
 $$
     f(\text{weight}_1 * \text{variable}_1 + \text{weight}_2 * \text{variable}_2 + \ldots).

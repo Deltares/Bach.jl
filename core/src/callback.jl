@@ -686,7 +686,7 @@ function update_subgrid_level!(integrator)::Nothing
         subgrid.basin_index_time,
         subgrid.current_interpolation_index,
     )
-        itp_index = lookup(t)
+        itp_index = Int(lookup(t))
         hh_itp = subgrid.interpolations_time[itp_index]
         subgrid.level[level_index] = hh_itp(basin_level[basin_index])
     end
